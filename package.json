@@ -1,0 +1,21 @@
+{
+  "name": "thebot",
+  "version": "1.0.0",
+  "description": "newest bot as in 2023",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "GG",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.36.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.8.0",
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1",
+    "stream": "^0.0.2",
+    "ytdl-core": "^4.11.2"
+  }
+}
