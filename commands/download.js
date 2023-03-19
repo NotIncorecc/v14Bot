@@ -26,6 +26,8 @@ module.exports = {
     try {
       const url = interaction.options.getString('ytlink');
       const typ = interaction.options.getString('type');
+      let ch;
+      if (typ=='audioonly') {ch = 'mp3';} else {ch = 'mp4';}
 
       await interaction.deferReply();
       const videoInfo = await ytdl.getBasicInfo(url);
@@ -36,11 +38,11 @@ module.exports = {
       bufferStream.push(await streamToBuffer(videoStream));
       bufferStream.push(null);
 
-      const attachment = new AttachmentBuilder(bufferStream, {name:`${videoTitle}.mp4`});
+      const attachment = new AttachmentBuilder(bufferStream, {name:`${videoTitle}.${ch}`});
 
 
       await interaction.followUp({ files: [attachment] });
-      await interaction.followUp( { content:'If you used mp4 format keep in mind that the audio may not play in discord. Audio will be available once you download'});
+      await interaction.followUp( { content:'If Audio is not there, it will be available once you download'});
 
     } catch (error) {
       console.error(error);
