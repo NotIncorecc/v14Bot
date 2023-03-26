@@ -42,7 +42,6 @@ module.exports = {
 
 
       await interaction.followUp({ files: [attachment] });
-      await interaction.followUp( { content:'If Audio is not there, it will be available once you download'});
 
     } catch (error) {
       console.error(error);
