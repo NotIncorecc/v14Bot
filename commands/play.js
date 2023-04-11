@@ -13,12 +13,9 @@ module.exports = {
             .setDescription('Name of the video you want to search for')
             .setRequired(true))
         ,
-
-        
 	async execute(interaction) {
-		// interaction.guild is the object representing the Guild in which the command was run
         const given_song = interaction.options.getString('query');
-
+        
         try{
             await interaction.deferReply();
 
@@ -44,12 +41,17 @@ module.exports = {
 
             audioplayer.play(createAudioResource(ytdlprocess));
 
-            await interaction.followUp({content:'Song is playing'});
+            audioplayer.on('error', error => {
+                console.error(`Error: ${error.message} with resource....`);
+            });
 
             audioplayer.on(AudioPlayerStatus.Idle, (oldState, newState) => {//song ended
                 connection.destroy();
                 return interaction.followUp({content:'Song ended. Leaving channel'});
             });
+
+            
+            await interaction.followUp({content:'Song is playing'});
 
         } catch (error){
             console.error(error);

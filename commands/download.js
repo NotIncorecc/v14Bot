@@ -22,17 +22,24 @@ module.exports = {
           )),
         
 	async execute(interaction) {
-    
-    try {
+   try {
       const url = interaction.options.getString('ytlink');
       const typ = interaction.options.getString('type');
       let ch;
       if (typ=='audioonly') {ch = 'mp3';} else {ch = 'mp4';}
 
       await interaction.deferReply();
-      const videoInfo = await ytdl.getBasicInfo(url);
+      const videoInfo = await ytdl.getInfo(url).catch((error) => {
+        console.error(`Error in getting video info: ${error.message}`);
+        throw new Error('Error getting video info.');
+      });
+
       const videoTitle = videoInfo.videoDetails.title;
-      const videoStream = ytdl(url, { filter: typ });
+      
+      const videoStream = ytdl(url, { filter: typ }).on('error', (err) => {
+        console.error(`Error in download stream: ${err.message}`);
+        interaction.followUp('Error downloading video.');
+      });
 
       const bufferStream = new Readable();
       bufferStream.push(await streamToBuffer(videoStream));
@@ -45,7 +52,7 @@ module.exports = {
 
     } catch (error) {
       console.error(error);
-      await interaction.followUp('Error downloading video.');
+      await interaction.followUp('Error');
     }  
     
       
