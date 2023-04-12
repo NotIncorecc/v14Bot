@@ -25,11 +25,11 @@ module.exports = {
         await interaction.deferReply();
 
 		const completion = await openai.createCompletion({
-				model: 'text-davinci-003',
+				model: 'gpt-3.5-turbo',
 				prompt: promt
 		});
 		const repl =  completion.data.choices[0].text;
-		console.log(completion.data.choices);
+		//console.log(completion.data.choices);
 
 		await interaction.reply(`${repl}`);
 	},
