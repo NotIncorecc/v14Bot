@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
 const { SlashCommandBuilder} = require('discord.js');
-const {joinVoiceChannel, createAudioResource, createAudioPlayer,getVoiceConnection, AudioPlayerStatus} = require('@discordjs/voice');
-const {stream} = require("play-dl");
+const {joinVoiceChannel, createAudioResource, createAudioPlayer,getVoiceConnection, NoSubscriberBehavior, AudioPlayerStatus} = require('@discordjs/voice');
+const play_ = require("play-dl");
 const audio = new Map();
 
-const ytse = require('yt-search');
+//need to complete authorisation pissed offff will come back later
+
+//const ytse = require('yt-search');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,7 +15,7 @@ module.exports = {
         .addSubcommand(subcommand => subcommand
             .setName('search')
             .setDescription('Enter song you want to search and play in channel')
-            .addStringOption(option => option.setName('query').setDescription('name of the song')))
+            .addStringOption(option => option.setName('query').setDescription('name of the song').setRequired(true)))
         .addSubcommand(subcommand => subcommand
             .setName('leave')
             .setDescription('The bot stops the music and leaves the channel'))
@@ -34,11 +36,16 @@ module.exports = {
             if (!userchannel) {return interaction.followUp('You must be in a voice channel to use this command');}
 
             if (interaction.options.getSubcommand() === 'search')  {
+                if (audio.get('music')) {return interaction.followUp('A song is already playing in the vc');}
                 const given_song = interaction.options.getString('query');
-                const search = await ytse(given_song);
-                const search_res = search.videos[0].url;
+                //const search = await ytse(given_song);
+                //const search_res = search.videos[0].url;
 
-                const audioplayer = createAudioPlayer();
+                const audioplayer = createAudioPlayer({
+                    behaviors: {
+                        noSubscriber: NoSubscriberBehavior.Play
+                    }
+                });
 
                 const connection = joinVoiceChannel({
                     channelId:userchannel.channelId,
@@ -46,12 +53,24 @@ module.exports = {
                     adapterCreator:interaction.guild.voiceAdapterCreator,
                     selfDeaf:false
                 });
+/*
+                if (play.is_expired()) {
+                    await play.refreshToken(); // This will check if access token has expired or not. If yes, then refresh the token.
+                }*/
 
                 connection.subscribe(audioplayer);
 
-                const playprocess = await stream(search_res);
+                //const playprocess = await stream(search_res);
 
-                audioplayer.play(createAudioResource(playprocess.stream, {inputType:playprocess.type} ));
+                let sp_data = await play_.spotify(given_song); // This will get spotify data from the url [ I used track url, make sure to make a logic for playlist, album ]
+        
+                let searched = await play_.search(`${sp_data.name}`, {
+                    limit: 1
+                }) ;// This will search the found track on youtube.
+
+                let stream = await play_.stream(searched[0].url); // This will create stream from the above search
+
+                audioplayer.play(createAudioResource(stream.stream, {inputType:stream.type} ));
 
                 audio.set('music',audioplayer);
 
