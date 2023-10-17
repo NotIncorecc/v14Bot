@@ -38,7 +38,6 @@ module.exports = {
                 const search_res = search.videos[0].url;
     
                 const userchannelid = interaction.member.voice.channelId;
-                console.log(userchannelid);
                 if (!userchannelid) {return interaction.followUp('You must be in a voice channel to use this command');}
     
                 const audioplayer = createAudioPlayer();
@@ -51,11 +50,13 @@ module.exports = {
     
                 connection.subscribe(audioplayer);
     
-                const ytdlprocess = ytdl(search_res, {filter:'audioonly'}).pipe(fs.createWriteStream('mus.mp3'));
+                const ytdlprocess = ytdl(search_res, {filter:'audioonly'});
                 ytdlprocess.on("error",(error) => {console.error(error);});
                 
                 audioplayer.play(createAudioResource(ytdlprocess));
-    
+
+                audio.set('music',audioplayer);
+
                 await interaction.followUp({content:'Song is playing'});
     
                 audioplayer.on(AudioPlayerStatus.Idle, (oldState, newState) => {//song ended
@@ -67,15 +68,15 @@ module.exports = {
 
                 const con = getVoiceConnection(interaction.guildId);
                 con.destroy();
-                interaction.followUp({content:'Leaving Channel X('});
+                interaction.reply({content:'Leaving Channel X('});
 
             } else if (interaction.options.getSubcommand() === 'pause') {
 
-                try {audio.get('music').pause(); interaction.followUp({content:'Song paused'});} catch (error) {interaction.followUp({content:'Error in pausing'});}
+                try {audio.get('music').pause(); interaction.reply({content:'Song paused'});} catch (error) {interaction.followUp({content:'Error in pausing'});}
 
             } else if (interaction.options.getSubcommand() === 'unpause') {
 
-                try {audio.get('music').unpause(); interaction.followUp({content:'Song unpaused'});} catch (error) {interaction.followUp({content:'Error in unpausing'});}
+                try {audio.get('music').unpause(); interaction.reply({content:'Song unpaused'});} catch (error) {interaction.followUp({content:'Error in unpausing'});}
             }
 
         } catch (error){
