@@ -40,7 +40,7 @@ module.exports = {
                 const userchannelid = interaction.member.voice.channelId;
                 if (!userchannelid) {return interaction.followUp('You must be in a voice channel to use this command');}
     
-                const audioplayer = createAudioPlayer();
+                const audioplayer = createAudioPlayer({debug:true});
     
                 const connection = joinVoiceChannel({
                     channelId:userchannelid,
@@ -58,10 +58,14 @@ module.exports = {
                 audio.set('music',audioplayer);
 
                 await interaction.followUp({content:'Song is playing'});
+
+                audioplayer.on('error', error => {
+                    console.error(`Error: ${error.message} with resource`);
+                }).on('debug', console.log);
     
                 audioplayer.on(AudioPlayerStatus.Idle, (oldState, newState) => {//song ended
                     connection.destroy();
-                    return interaction.followUp({content:'Song ended. Leaving channel'});
+                    return interaction.reply({content:'Song ended. Leaving channel'});
                 });
 
             } else if (interaction.options.getSubcommand() === 'leave') {
