@@ -50,7 +50,16 @@ module.exports = {
     
                 connection.subscribe(audioplayer);
     
-                const ytdlprocess = ytdl(search_res, {filter:'audioonly'});
+                //const ytdlprocess = ytdl(search_res, {filter:'audioonly'});
+
+                const ytdlprocess = ytdl(search_res, {
+                    quality: 'highestaudio',
+                    filter: (form) => {
+                      if (form.bitrate && interaction.member.voice.channel.bitrate) return form.bitrate <= interaction.member.voice.channel.bitrate;
+                      return false;
+                    },
+                });
+
                 ytdlprocess.on("error",(error) => {console.error(error);});
                 
                 audioplayer.play(createAudioResource(ytdlprocess));
@@ -65,7 +74,7 @@ module.exports = {
     
                 audioplayer.on(AudioPlayerStatus.Idle, (oldState, newState) => {//song ended
                     connection.destroy();
-                    return interaction.reply({content:'Song ended. Leaving channel'});
+                    return interaction.followUp({content:'Song ended. Leaving channel'});
                 });
 
             } else if (interaction.options.getSubcommand() === 'leave') {
